@@ -3,22 +3,23 @@ version: '3'
 services:
   node-app:
     build: .
-    image: node-app
+    image: node:14
     environment:
-      - MONGODB_URL=mongodb://mongodb:27017/node-boilerplate
+      - RETHINKDB_URL=rethinkdb://rethinkdb:5000/lunar_db
     ports:
       - '3000:3000'
     depends_on:
-      - mongodb
+      - rethinkdb
     volumes:
       - .:/usr/src/node-app
     networks:
       - node-network
 
-  mongodb:
-    image: mongo:4.2.1-bionic
+  rethinkdb:
+    image: rethinkdb:2.4.1-centos
     ports:
-      - '27017:27017'
+      - '5000:28015'
+      - '9000:8080'
     volumes:
       - dbdata:/data/db
     networks:

@@ -8,7 +8,11 @@ const envVarsSchema = Joi.object()
   .keys({
     NODE_ENV: Joi.string().valid('production', 'development', 'test').required(),
     PORT: Joi.number().default(3000),
-    MONGODB_URL: Joi.string().required().description('Mongo DB url'),
+    RETHINKDB_HOST: Joi.string().required().description('Rethink DB Host'),
+    RETHINKDB_PORT: Joi.string().required().description('Rethink DB Port'),
+    RETHINKDB_USERNAME: Joi.string().required().description('Rethink DB Username'),
+    RETHINKDB_PASSWORD: Joi.string().optional().allow(''),
+    RETHINKDB_DB_NAME: Joi.string().required().description('Rethink DB Name'),
     JWT_SECRET: Joi.string().required().description('JWT secret key'),
     JWT_ACCESS_EXPIRATION_MINUTES: Joi.number().default(30).description('minutes after which access tokens expire'),
     JWT_REFRESH_EXPIRATION_DAYS: Joi.number().default(30).description('days after which refresh tokens expire'),
@@ -18,11 +22,6 @@ const envVarsSchema = Joi.object()
     JWT_VERIFY_EMAIL_EXPIRATION_MINUTES: Joi.number()
       .default(10)
       .description('minutes after which verify email token expires'),
-    SMTP_HOST: Joi.string().description('server that will send the emails'),
-    SMTP_PORT: Joi.number().description('port to connect to the email server'),
-    SMTP_USERNAME: Joi.string().description('username for email server'),
-    SMTP_PASSWORD: Joi.string().description('password for email server'),
-    EMAIL_FROM: Joi.string().description('the from field in the emails sent by the app'),
   })
   .unknown();
 
@@ -35,13 +34,10 @@ if (error) {
 module.exports = {
   env: envVars.NODE_ENV,
   port: envVars.PORT,
-  mongoose: {
-    url: envVars.MONGODB_URL + (envVars.NODE_ENV === 'test' ? '-test' : ''),
-    options: {
-      useCreateIndex: true,
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    },
+  rethinkdb: {
+    host: envVars.RETHINKDB_HOST + (envVars.NODE_ENV === 'test' ? '-test' : ''),
+    port: envVars.RETHINKDB_PORT,
+    db_name: envVars.RETHINKDB_DB_NAME + (envVars.NODE_ENV === 'test' ? '-test' : '')
   },
   jwt: {
     secret: envVars.JWT_SECRET,
@@ -49,16 +45,5 @@ module.exports = {
     refreshExpirationDays: envVars.JWT_REFRESH_EXPIRATION_DAYS,
     resetPasswordExpirationMinutes: envVars.JWT_RESET_PASSWORD_EXPIRATION_MINUTES,
     verifyEmailExpirationMinutes: envVars.JWT_VERIFY_EMAIL_EXPIRATION_MINUTES,
-  },
-  email: {
-    smtp: {
-      host: envVars.SMTP_HOST,
-      port: envVars.SMTP_PORT,
-      auth: {
-        user: envVars.SMTP_USERNAME,
-        pass: envVars.SMTP_PASSWORD,
-      },
-    },
-    from: envVars.EMAIL_FROM,
   },
 };
